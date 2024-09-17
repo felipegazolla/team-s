@@ -1,6 +1,4 @@
-import { Groups } from '@screens/Groups'
-import { Players } from '@screens/Players'
-import { NewGroup } from '@screens/NewGroup'
+import { Routes } from '@routes/index'
 
 import theme from './src/theme'
 import { ThemeProvider } from 'styled-components/native'
@@ -24,7 +22,7 @@ export default function App() {
         backgroundColor="trasparent"
         translucent
       />
-      {fontsLoaded ? <Groups /> : <Loading />}
+      {fontsLoaded ? <Routes /> : <Loading />}
     </ThemeProvider>
   )
 }
