@@ -9,12 +9,13 @@ import { useEffect, useRef, useState } from 'react'
 import { PlayerCard } from '@components/PlayerCard'
 import { EmptyList } from '@components/EmptyList'
 import { Button } from '@components/Button'
-import { useRoute } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { AppError } from '@utils/AppError'
 import { playerAddByGroup } from '@storage/player/playerAddByGroup'
 import { playersGetByGroupAndTeam } from '@storage/player/playersGetByGroupAndTeam'
 import type { PlayerStorageDTO } from '@storage/player/PlayerStorageDTO'
 import { playerRemoveByGroup } from '@storage/player/playerRemoveByGroup'
+import { groupRemoveByName } from '@storage/group/groupRemoveByName'
 
 type RouteParams = {
   group: string
@@ -24,11 +25,10 @@ export function Players() {
   const [newPlayerName, setNewPlayerName] = useState('')
   const [team, setTeam] = useState('Time A')
   const [players, setPlayers] = useState<PlayerStorageDTO[]>([])
-
   const route = useRoute()
   const { group } = route.params as RouteParams
-
   const newPlayerNameInputRef = useRef<TextInput>(null)
+  const navigation = useNavigation()
 
   async function handleAddPlayer() {
     if (newPlayerName.trim().length === 0) {
@@ -70,11 +70,30 @@ export function Players() {
     try {
       await playerRemoveByGroup(playerName, group)
       fetchPlayersByTeam()
-
     } catch (error) {
       console.log(error)
       Alert.alert('Remover jogador', 'Não foi possivel remover.')
     }
+  }
+
+  async function groupRemove() {
+    try {
+      await groupRemoveByName(group)
+      navigation.navigate('groups')
+    } catch (error) {
+      console.log(error)
+      Alert.alert('Remover grupo', 'Não foi possivel remover o grupo.')
+    }
+  }
+
+  async function handleGroupRemove() {
+    Alert.alert('Remover', 'Deseja remover o grupo?', [
+      { text: 'Não', style: 'cancel' },
+      {
+        text: 'Sim',
+        onPress: () => groupRemove(),
+      },
+    ])
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -118,7 +137,12 @@ export function Players() {
         data={players}
         keyExtractor={item => item.name}
         renderItem={({ item }) => (
-          <PlayerCard onRemove={() => {handleRemovePlayer(item.name)}} name={item.name} />
+          <PlayerCard
+            onRemove={() => {
+              handleRemovePlayer(item.name)
+            }}
+            name={item.name}
+          />
         )}
         ListEmptyComponent={() => (
           <EmptyList message="Adicione participantes à turma" />
@@ -130,7 +154,7 @@ export function Players() {
         ]}
       />
 
-      <Button title="Remover turma" type="RED" />
+      <Button onPress={handleGroupRemove} title="Remover turma" type="RED" />
     </Container>
   )
 }
