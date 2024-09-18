@@ -1,33 +1,44 @@
-import { Header } from '@components/Header'
 import { Container, Counter, Form, HeaderList } from './styles'
+
+import { Header } from '@components/Header'
 import { Highlight } from '@components/Highlight'
 import { IconButton } from '@components/IconButton'
 import { Input } from '@components/Input'
 import { Filter } from '@components/Filter'
-import { Alert, FlatList, type TextInput } from 'react-native'
-import { useEffect, useRef, useState } from 'react'
 import { PlayerCard } from '@components/PlayerCard'
 import { EmptyList } from '@components/EmptyList'
 import { Button } from '@components/Button'
+
+import { useEffect, useRef, useState } from 'react'
+import { Alert, FlatList, type TextInput } from 'react-native'
+
 import { useNavigation, useRoute } from '@react-navigation/native'
+
 import { AppError } from '@utils/AppError'
+
 import { playerAddByGroup } from '@storage/player/playerAddByGroup'
 import { playersGetByGroupAndTeam } from '@storage/player/playersGetByGroupAndTeam'
 import type { PlayerStorageDTO } from '@storage/player/PlayerStorageDTO'
 import { playerRemoveByGroup } from '@storage/player/playerRemoveByGroup'
 import { groupRemoveByName } from '@storage/group/groupRemoveByName'
+import { Loading } from '@components/Loading'
 
 type RouteParams = {
   group: string
 }
 
 export function Players() {
+  const [isLoading, setIsLoading] = useState(true)
   const [newPlayerName, setNewPlayerName] = useState('')
   const [team, setTeam] = useState('Time A')
   const [players, setPlayers] = useState<PlayerStorageDTO[]>([])
+
   const route = useRoute()
+
   const { group } = route.params as RouteParams
+
   const newPlayerNameInputRef = useRef<TextInput>(null)
+
   const navigation = useNavigation()
 
   async function handleAddPlayer() {
@@ -58,8 +69,10 @@ export function Players() {
 
   async function fetchPlayersByTeam() {
     try {
+      setIsLoading(true)
       const playersByTeam = await playersGetByGroupAndTeam(group, team)
       setPlayers(playersByTeam)
+      setIsLoading(false)
     } catch (error) {
       console.log(error)
       Alert.alert('Jogadores', 'Não foi possivel carregar os jogadores')
@@ -108,7 +121,7 @@ export function Players() {
       <Form>
         <Input
           inputRef={newPlayerNameInputRef}
-          placeholder="Adicione a pessoa"
+          placeholder="Adicione uma pessoa"
           onChangeText={setNewPlayerName}
           autoCorrect={false}
           value={newPlayerName}
@@ -131,30 +144,36 @@ export function Players() {
           )}
           horizontal
         />
+
         <Counter>{players.length}</Counter>
       </HeaderList>
-      <FlatList
-        data={players}
-        keyExtractor={item => item.name}
-        renderItem={({ item }) => (
-          <PlayerCard
-            onRemove={() => {
-              handleRemovePlayer(item.name)
-            }}
-            name={item.name}
-          />
-        )}
-        ListEmptyComponent={() => (
-          <EmptyList message="Adicione participantes à turma" />
-        )}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          { paddingBottom: 100 },
-          players.length === 0 && { flex: 1 },
-        ]}
-      />
 
-      <Button onPress={handleGroupRemove} title="Remover turma" type="RED" />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <FlatList
+          data={players}
+          keyExtractor={item => item.name}
+          renderItem={({ item }) => (
+            <PlayerCard
+              onRemove={() => {
+                handleRemovePlayer(item.name)
+              }}
+              name={item.name}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <EmptyList message="Adicione participantes ao grupo" />
+          )}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            { paddingBottom: 100 },
+            players.length === 0 && { flex: 1 },
+          ]}
+        />
+      )}
+
+      <Button onPress={handleGroupRemove} title="Remover grupo" type="RED" />
     </Container>
   )
 }

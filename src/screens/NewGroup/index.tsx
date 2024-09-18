@@ -1,13 +1,18 @@
-import { Header } from '@components/Header'
 import { Container, Content, Icon } from './styles'
+
+import { Header } from '@components/Header'
 import { Highlight } from '@components/Highlight'
 import { Button } from '@components/Button'
 import { Input } from '@components/Input'
-import { useNavigation } from '@react-navigation/native'
+
 import { useState } from 'react'
-import { groupCreate } from '@storage/group/groupCreate'
-import { AppError } from '@utils/AppError'
 import { Alert } from 'react-native'
+
+import { useNavigation } from '@react-navigation/native'
+
+import { groupCreate } from '@storage/group/groupCreate'
+
+import { AppError } from '@utils/AppError'
 
 export function NewGroup() {
   const [group, setGroup] = useState('')
@@ -38,10 +43,10 @@ export function NewGroup() {
       <Content>
         <Icon />
         <Highlight
-          title="Nova turma"
-          subtitle="crie uma turma para adicionar pessoas"
+          title="Novo grupo"
+          subtitle="crie um grupo para adicionar pessoas"
         />
-        <Input placeholder="Nome da turma" onChangeText={setGroup} />
+        <Input placeholder="Nome do grupo" onChangeText={setGroup} />
         <Button
           onPress={handleNewGroup}
           style={{ marginTop: 20 }}
