@@ -29,10 +29,12 @@ export function Groups() {
       setIsLoading(true)
       const data = await groupGetAll()
       setGroups(data)
-      setIsLoading(false)
+
     } catch (error) {
       console.log(error)
       Alert.alert('Grupos', 'Não foi possivel carregar os grupos')
+    } finally {
+      setIsLoading(false)
     }
   }
 
