@@ -14,6 +14,7 @@ import { AppError } from '@utils/AppError'
 import { playerAddByGroup } from '@storage/player/playerAddByGroup'
 import { playersGetByGroupAndTeam } from '@storage/player/playersGetByGroupAndTeam'
 import type { PlayerStorageDTO } from '@storage/player/PlayerStorageDTO'
+import { playerRemoveByGroup } from '@storage/player/playerRemoveByGroup'
 
 type RouteParams = {
   group: string
@@ -65,6 +66,17 @@ export function Players() {
     }
   }
 
+  async function handleRemovePlayer(playerName: string) {
+    try {
+      await playerRemoveByGroup(playerName, group)
+      fetchPlayersByTeam()
+
+    } catch (error) {
+      console.log(error)
+      Alert.alert('Remover jogador', 'Não foi possivel remover.')
+    }
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchPlayersByTeam()
@@ -82,7 +94,7 @@ export function Players() {
           autoCorrect={false}
           value={newPlayerName}
           onSubmitEditing={handleAddPlayer}
-          returnKeyType='done'
+          returnKeyType="done"
         />
         <IconButton icon="add" onPress={handleAddPlayer} />
       </Form>
@@ -106,7 +118,7 @@ export function Players() {
         data={players}
         keyExtractor={item => item.name}
         renderItem={({ item }) => (
-          <PlayerCard onRemove={() => {}} name={item.name} />
+          <PlayerCard onRemove={() => {handleRemovePlayer(item.name)}} name={item.name} />
         )}
         ListEmptyComponent={() => (
           <EmptyList message="Adicione participantes à turma" />
